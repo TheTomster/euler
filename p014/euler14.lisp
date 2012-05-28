@@ -49,6 +49,8 @@
           (setf highest cc)
           (setf highest-i i)))))
 
+(format t "~&~S~%" (longest-collatz))
+
 ;;; Result: 837,799 gives the longest sequence, with length 525
 ;;; Evaluation took:
 ;;;   7.054 seconds of real time
