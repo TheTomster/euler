@@ -21,6 +21,10 @@
 
 (defparameter test-n 1000000)
 
+(defun collatz (n)
+  (cond ((evenp n) (/ n 2))
+        ((oddp n) (+ 1 (* 3 n)))))
+
 (defun collatz-count (n)
   (let ((acc 0))
     (do ((x n (collatz x)))
@@ -33,10 +37,6 @@
         ((equal x 1) (push x acc))
       (push x acc))
     (nreverse acc)))
-
-(defun collatz (n)
-  (cond ((evenp n) (/ n 2))
-        ((oddp n) (+ 1 (* 3 n)))))
 
 (defun longest-collatz ()
   (do ((i 1 (+ i 1))
