@@ -34,10 +34,7 @@ proc period {n} {
 
 proc e26 {n} {
     for {set i 1} {$i <= $n} {incr i} {
-        puts -nonewline "$i => "
-        flush stdout
         set f [period $i]
-        puts $f
         lappend results [list $f $i]
     }
     set max_list [lindex [lsort -integer -decreasing -index 0 $results] 0]
