@@ -51,7 +51,7 @@
 
 (defparameter *pandigital-digit-list* (list 1 2 3 4 5 6 7 8 9))
 
-(defun seq-to-num (ns)
+(defun list-to-num (ns)
   (labels ((aux (ns)
              (if (null ns)
                0
@@ -67,9 +67,9 @@
                                          (subseq ns j))))))
 
 (defun check-lists-prod (is js ps)
-  (let ((i (seq-to-num is))
-        (j (seq-to-num js))
-        (p (seq-to-num ps)))
+  (let ((i (list-to-num is))
+        (j (list-to-num js))
+        (p (list-to-num ps)))
     (list (eql (* i j) p) p)))
 
 (defun check-sublists (digits)
