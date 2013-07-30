@@ -12,15 +12,10 @@
 ;; If the product of these four fractions is given in its lowest common
 ;; terms, find the value of the denominator.
 
-(defun unsimp-fract-numerator (fract)
-  (first fract))
-
-(defun unsimp-fract-denominator (fract)
-  (second fract))
-
+; A `fract` is a two-item list of the form '(numerator denominator)
 (defun to-rational (fract)
-  (/ (unsimp-fract-numerator fract)
-     (unsimp-fract-denominator fract)))
+  "converts a `(numerator denominator) to a rational"
+  (/ (first fract) (second fract)))
 
 (defun multiply-and-get-denom (ns)
   (denominator (apply #'* ns)))
@@ -37,46 +32,50 @@
                (+ (* 10 (aux (rest ns))) (first ns)))))
     (aux (reverse ns))))
 
-(defun remove-first (l ns)
+(defun remove-first (ns l)
   "removes first item from ns found in l"
   (if (null l)
     nil
-    (let ((head (first l)))
-      (if (member (first l) ns)
-        (rest l)
-        (cons head (remove-first (rest l) ns))))))
+    (if (member (first l) ns)
+      (rest l)
+      (cons (first l) (remove-first ns (rest l))))))
 
 (defun remove-common-digits (fract)
-  (let* ((n-digits (num-to-list (unsimp-fract-numerator fract)))
-         (d-digits (num-to-list (unsimp-fract-denominator fract)))
+  (let* ((n-digits (num-to-list (first fract)))
+         (d-digits (num-to-list (second fract)))
          (common-digits (loop for digit in n-digits
                           when (member digit d-digits) collect digit)))
     (if (null common-digits)
       fract
-      (list
-       (list-to-num (remove-first n-digits common-digits))
-       (list-to-num (remove-first d-digits common-digits))))))
+      (list (list-to-num (remove-first common-digits n-digits))
+            (list-to-num (remove-first common-digits d-digits))))))
 
 (defun digit-simplify-p (fract)
   (let ((digits-removed (remove-common-digits fract)))
+    ; check that the lists are not equal, that the denominator with common
+    ; digits removed isn't 0, and that the fractions simplify to the same
+    ; thing
     (and (not (eql fract digits-removed))
-         (not (zerop (unsimp-fract-denominator digits-removed)))
+         (not (zerop (second digits-removed)))
          (eql (to-rational fract) 
               (to-rational digits-removed)))))
 
 (defun trivial-p (fract)
-  (let ((n (unsimp-fract-numerator fract))
-        (d (unsimp-fract-denominator fract)))
+  "removes 'trivial' examples.
+   Any case where the numerator and denominator are equal, and any case
+   where they are both multiples of 10."
+  (let ((n (first fract))
+        (d (second fract)))
     (or (eql n d)
         (and (zerop (mod n 10))
              (zerop (mod d 10))))))
 
 (defun e33 ()
-  (let ((all-digit-simp
-         (apply #'append (loop for numerator from 11 to 99 collect
-                           (loop for denominator from numerator to 99
-                             when (digit-simplify-p
-                                   (list numerator denominator))
-                             collect (list numerator denominator))))))
-    (multiply-and-get-denom (mapcar #'to-rational
-                                    (remove-if #'trivial-p all-digit-simp)))))
+  (let* ((all-digit-simp    (loop for numerator from 11 to 99 nconc
+                              (loop for denominator from numerator to 99
+                                when (digit-simplify-p
+                                      (list numerator denominator))
+                                collect (list numerator denominator))))
+         (trivials-removed  (remove-if #'trivial-p all-digit-simp))
+         (rationals         (mapcar #'to-rational trivials-removed)))
+    (multiply-and-get-denom rationals)))
