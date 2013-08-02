@@ -24,8 +24,10 @@
   (num-to-digits (* n i)))
 
 (defun duplicate-digit-p (n)
-  (labels ((aux (digits) (or (member (first digits) (rest digits))
-			     (aux (rest digits)))))
+  (labels ((aux (digits) (if (null digits)
+			     nil
+			     (or (member (first digits) (rest digits))
+				 (aux (rest digits))))))
     (aux (num-to-digits n))))
 
 (defun get-pdp (n)
@@ -33,15 +35,17 @@
              (if (eql (length digits) 9)
 		 (digits-to-num digits)
 		 (let* ((new-digits (product-digits n i)))
-		   (if (or (some (lambda (x) (member x digits)) new-digits)
+		   (if (or (duplicate-digit-p (* n i))
+			   (some (lambda (x) (member x digits)) new-digits)
 			   (member 0 new-digits))
 		       nil
 		       (aux n (1+ i) (append digits new-digits)))))))
-    (if (duplicate-digit-p n)
+    (if (or (> n (expt 10 8))
+	    (duplicate-digit-p n))
 	nil
 	(aux n 2 (num-to-digits n)))))
 
-(defun e38 (&optional (upper-limit (expt 10 9)))
+(defun e38 (&optional (upper-limit (floor 987654321 2)))
   (let ((largest-pdp 0))
     (loop for n from upper-limit downto 1
       do (let ((pdp (get-pdp n)))
