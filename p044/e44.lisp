@@ -6,7 +6,10 @@
 (defun generate-pentagonals (&optional (n 1000000))
   (setf pentagonal-numbers
         (loop for x from 1 to n
-           collecting (/ (* x (- (* 3 x) 1)) 2)))
+           collecting (/ (- (* 3
+                               (* x x))
+                            x)
+                         2)))
   (setf pentagonal-numbers-hash (make-hash-table))
   (loop for x in pentagonal-numbers
        do (setf (gethash x pentagonal-numbers-hash) t))
@@ -16,18 +19,24 @@
   (gethash n pentagonal-numbers-hash))
 
 (defun e44-interestingp (x y)
-  (every (lambda (n) (gethash n pentagonal-numbers-hash))
+  (every #'pentagonalp
          (list x
                y
                (- (max x y) (min x y))
                (+ x y))))
 
-(defun find-subtractands (n)
-  "find pentagonal numbers a and b where a - b = n"
+(defun find-operands (fn n)
+  "find pentagonal numbers a and b where fn(a, b) = n"
   (loop for a in pentagonal-numbers
        nconc (loop for b in pentagonal-numbers
-                when (= (- a b) n)
+                when (= (funcall fn a b) n)
                 collect (list a b))))
+
+(defun find-subtractands (n)
+  (find-operands #'- n))
+
+(defun find-summands (n)
+  (find-operands #'+ n))
 
 (defun e44 ()
   (loop for i in pentagonal-numbers do
