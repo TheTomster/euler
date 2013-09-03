@@ -4,6 +4,7 @@
   (:use :common-lisp)
   (:export :primep
            :primes-before-gen
+           :primes-before
            :debug-mode
            :dbg
            :range
@@ -44,6 +45,12 @@
            (when (<= (car ret) n)
              (return ret))
            (setf ret (cdr ret)))))))
+
+(defun primes-before (n)
+  "unmemoized prime generator"
+  (loop for i from 1 to n
+     when (primep i)
+     collect i))
 
 (defun range (a b)
   "returns a list of numbers from a to b, inclusive"
