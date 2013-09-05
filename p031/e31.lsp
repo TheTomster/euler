@@ -11,8 +11,6 @@
 ;     
 ; How many different ways can £2 be made using any number of coins?
 
-(ql:quickload 'fare-memoization)
-
 (defparameter *british-coins* '(200 100 50 20 10 5 2 1))
 
 (defun pack (remainder coin-set)
@@ -23,7 +21,6 @@
      ((<= big-coin remainder) (+ (pack (- remainder big-coin) coin-set)
                                 (pack remainder (rest coin-set))))
      (t (+ (pack remainder (rest coin-set)))))))
-(fare-memoization:memoize 'pack)
 
 (defun e31 (target coins)
   (pack target (sort coins #'>)))
