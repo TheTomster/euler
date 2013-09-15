@@ -14,3 +14,5 @@
 
 (define (e14)
   (apply max (map collatz-count (range 1 1000000))))
+
+(displayln (e14))
