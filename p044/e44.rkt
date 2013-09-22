@@ -1,47 +1,57 @@
 #lang racket
 
-;(require racket/fixnum)
-;(require racket/unsafe/ops)
+(require math/number-theory)
 
-(define (pentagonal n)
-  (/ (- (* 3
-           (* n n))
-        n)
-     2))
+(provide main)
 
-(define (pentagonal? n)
-  (let* ([x (+ (* 24 n) 1)]
-         [sr (sqrt x)])
-    (and (integer? sr)
-         (= 5 (modulo sr
-                      6)))))
+(define (from-sequence i)
+  (pentagonal-number i))
 
-; Finds all of the pentagonal #s between Pn and Pn/2
-(define (summands-to-test n)
-  (let loop ([p (pentagonal n)]
-             [acc null]
-             [i (pentagonal (- n 1))])
-    (if (< (pentagonal i) (/ n 2))
-        acc
-        (loop p (cons (pentagonal i) acc) (- i 1)))))
+(define (in-sequence? i)
+  (pentagonal-number? i))
 
-; test if p1 - p2 is pentagonal. if so, then check if the difference
-; between p2 and p3 is also pentagonal
-(define (check p1 p2)
-  (let ([p3 (- p1 p2)])
-    (and (pentagonal? p3)
-         (pentagonal? (- p2 p3)))))
+; find all valid numbers that are less than n
+(define (sequence-before n)
+  (let loop ([i 1]
+             [acc '()])
+    (let ([p (from-sequence i)])
+      (cond
+        [(>= p n) acc]
+        [else (loop (add1 i) (cons p acc))]))))
+
+; remove nulls from n
+(define (harvest ns)
+  (filter (compose not null?) ns)) 
+
+; find an a and b such that
+;     a - b = c
+; and a and b are valid
+(define (find-subtractands c)
+  (harvest (for/list ([b (in-list (sequence-before c))])
+             (let ([a (+ b c)])
+               (if (in-sequence? a)
+                   (list a b)
+                   null)))))
+
+(define (add-pair p)
+  (apply + p))
+
+(define (sub-pair p)
+  (apply - p))
+
+; check whether the sum of the given pair is valid
+(define sum-pair? (compose in-sequence? add-pair))
 
 (define (e44)
-  (for* ([i (in-range 1 1000)]
-         [to-test (summands-to-test i)])
-    (when (check (pentagonal i) to-test)
-      (let* ([p1 (pentagonal i)]
-             [p2 to-test]
-             [p3 (- p1 p2)]
-             [p4 (- p2 p3)])
-        (format "PASS! ~a ~a ~a ~a"
-                p1
-                p2
-                p3
-                p4)))))
+  (sub-pair (first
+    (let loop ([i 1])
+      (let* ([p (from-sequence i)]
+             [subtractand-pairs (find-subtractands p)]
+             [summand-pairs (filter sum-pair?
+                                    subtractand-pairs)])
+        (if (not (null? summand-pairs))
+            summand-pairs
+            (loop (add1 i))))))))
+
+(define (main)
+  (displayln (e44)))
