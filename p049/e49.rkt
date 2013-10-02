@@ -2,27 +2,39 @@
 
 (require math/number-theory)
 
+(provide main)
+
+(define (num->digits n)
+  (let loop ([n n]
+             [acc '()])
+    (cond
+      [(zero? n) acc]
+      [else (loop (quotient n 10)
+                  (cons (modulo n 10) acc))])))
+
 (define (permuted? a b)
-  (let ([a-ct (make-hash)]
-        [b-ct (make-hash)])
-    (let loop ([a a]
-               [b b])
-      (cond
-        [(or (= a 0) (= b 0)) (equal? a-ct b-ct)]
-        [else (let ([a-digit (modulo a 10)]
-                    [b-digit (modulo b 10)])
-                (hash-set! a-ct a-digit (add1 (hash-ref a-ct a-digit 0)))
-                (hash-set! b-ct b-digit (add1 (hash-ref b-ct b-digit 0)))
-                (loop (quotient a 10) (quotient b 10)))]))))
+  (let ([a-digits (num->digits a)]
+        [b-digits (num->digits b)])
+    (equal? (sort a-digits <) (sort b-digits <))))
 
 (define 4-digit-primes
   (filter prime? (range 1000 10000)))
 
+(define (step a b)
+  (+ b (- b a)))
+
+(define (interesting? a b)
+  (cond 
+   [(permuted? a b) (let ([c (step a b)])
+                      (and (permuted? a c)
+                           (prime? c)))]
+   [else #f]))
+
 (define (e49)
   (for ([a 4-digit-primes])
     (for ([b (filter (lambda (n) (> n a)) 4-digit-primes)])
-      (when (permuted? a b)
-        (let ([c (+ b (- b a))])
-          (when (and (permuted? a c)
-                     (prime? c))
-            (displayln (list a b c))))))))
+      (when (interesting? a b)
+        (displayln (list a b (step a b)))))))
+
+(define (main)
+  (e49))
