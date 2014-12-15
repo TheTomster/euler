@@ -35,15 +35,17 @@ bool samedigits(int a, int b)
 int main(int argc, char **argv)
 {
     int n, p, i;
+    bool same;
     for (n = 1;; n++) {
+        same = true;
         for (i = 0; i < 6; i++) {
             p = (i + 1) * n;
-            if (!samedigits(p, n))
-                goto next;
+            same &= samedigits(p, n);
         }
-        printf("%d\n", n);
-        return EXIT_SUCCESS;
-next: (void) 0;
+        if (same) {
+            printf("%d\n", n);
+            return EXIT_SUCCESS;
+        }
     }
     return EXIT_SUCCESS;
 }
