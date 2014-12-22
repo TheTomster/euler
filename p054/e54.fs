@@ -105,12 +105,8 @@ gamebuf 15 + value player2
 : hand ( p -- c u ) 14 ;
 
 variable wins
+: p1-wins? ( -- ? ) player1 hand score player2 hand score > ;
+: count-wins ( -- )
+	1000 0 do read-game p1-wins? if 1 wins +! then loop ;
 : e54 ( -- n )
-	0 wins !
-	open-hands
-	1000 0 do
-		read-game
-		player1 hand score player2 hand score
-		> if 1 wins +! then
-	loop
-	wins @ ;
+	0 wins ! open-hands count-wins close-hands wins @ ;
