@@ -8,11 +8,10 @@
 
 import Data.List
 
-digits' 0 = []
-digits' n = last : digits' (div n 10)
+digits 0 = []
+digits n = last : rest
     where last = n `mod` 10
-
-digits n = reverse $ digits' n
+          rest = digits (div n 10)
 
 sameDigits n m = (sort (digits n)) == (sort (digits m))
 
