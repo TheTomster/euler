@@ -33,7 +33,8 @@ variable end-permutations
 : end? ( a -- ? ) end-permutations @ = ;
 : matches? ( p a -- ? ) @ = ;
 : 0! ( a -- ) 0 swap ! ;
-: new-slot ( p a -- ) dup 1 cells + 0! ! inc-endp ;
+: slot-count ( a -- a ) 1 cells + ;
+: new-slot ( p a -- ) dup slot-count 0! ! inc-endp ;
 : find-slot ( p -- a )
 	permutations
 	begin
@@ -41,10 +42,10 @@ variable end-permutations
 		2dup matches? if nip exit then
 		2 cells +
 	again ;
-: add-count ( a -- ) 1 cells + 1 swap +! ;
+: add-count ( a -- ) slot-count 1 swap +! ;
 \ Use these to mark a permutation as seen and check the count
 : saw ( p -- ) find-slot add-count ;
-: count ( p -- ) find-slot 1 cells + @ ;
+: count ( p -- ) find-slot slot-count @ ;
 
 : find-lowest ( n -- )
 	cubes-to-eval 0 do
